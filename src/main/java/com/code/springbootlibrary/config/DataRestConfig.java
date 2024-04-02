@@ -1,6 +1,7 @@
 package com.code.springbootlibrary.config;
 
 import com.code.springbootlibrary.entity.Book;
+import com.code.springbootlibrary.entity.Review;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
@@ -10,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 @Configuration
 public class DataRestConfig implements RepositoryRestConfigurer {
 
-    private String theAllowedOrigins="http://localhost:3000";
+    private final String theAllowedOrigins="http://localhost:3000";
 
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
@@ -19,18 +20,23 @@ public class DataRestConfig implements RepositoryRestConfigurer {
 
         // disable HTTP methods for Book: PUT, POST and DELETE
         config.exposeIdsFor(Book.class);
+        config.exposeIdsFor(Review.class);
         
         // disable HTTP methods for Book: PUT, POST and DELETE
         disableHttpMethods(Book.class, config, theUnsupportedActions);
+        disableHttpMethods(Review.class, config, theUnsupportedActions);
+
 
         // configure CORS mapping
         cors.addMapping(config.getBasePath() + "/**").allowedOrigins(theAllowedOrigins);
     }
 
-    private void disableHttpMethods(Class<Book> bookClass, RepositoryRestConfiguration config, HttpMethod[] theUnsupportedActions) {
+    private void disableHttpMethods(Class theClass, RepositoryRestConfiguration config, HttpMethod[] theUnsupportedActions) {
         config.getExposureConfiguration()
-                .forDomainType(bookClass)
-                .withItemExposure((metadata, httpMethods) -> httpMethods.disable(theUnsupportedActions))
-                .withCollectionExposure((metadata, httpMethods) -> httpMethods.disable(theUnsupportedActions));
+                .forDomainType(theClass)
+                .withItemExposure((metdata, httpMethods) ->
+                        httpMethods.disable(theUnsupportedActions))
+                .withCollectionExposure((metdata, httpMethods) ->
+                        httpMethods.disable(theUnsupportedActions));
     }
 }
