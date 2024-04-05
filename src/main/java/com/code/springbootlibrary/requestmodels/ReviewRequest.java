@@ -11,5 +11,5 @@ public class ReviewRequest {
 
     private Long bookId;
 
-    private Optional<String> reviewDescription;
+    private Optional<String> reviewDescription = Optional.empty();
 }
