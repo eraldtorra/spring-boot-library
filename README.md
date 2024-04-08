@@ -55,11 +55,3 @@ The application includes unit tests for the service layer and integration tests 
 ```bash
 mvn test
 ```
-
-## Contributing
-
-Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) before getting started.
-
-## License
-
-This project is licensed under the terms of the MIT license. See the [LICENSE](LICENSE.md) file for details.
