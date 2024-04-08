@@ -2,8 +2,10 @@ package com.code.springbootlibrary.service;
 
 import com.code.springbootlibrary.dao.BookRepository;
 import com.code.springbootlibrary.dao.CheckoutRepository;
+import com.code.springbootlibrary.dao.HistoryRepository;
 import com.code.springbootlibrary.entity.Book;
 import com.code.springbootlibrary.entity.Checkout;
+import com.code.springbootlibrary.entity.History;
 import com.code.springbootlibrary.responsemodels.ShelfResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +25,15 @@ public class BookService {
 
     private BookRepository bookRepository;
 
+    private HistoryRepository historyRepository;
+
     private CheckoutRepository checkoutRepository;
 
 
-    public BookService(BookRepository bookRepository, CheckoutRepository checkoutRepository) {
+    public BookService(BookRepository bookRepository, CheckoutRepository checkoutRepository, HistoryRepository historyRepository) {
         this.bookRepository = bookRepository;
         this.checkoutRepository = checkoutRepository;
+        this.historyRepository = historyRepository;
     }
 
 
@@ -110,7 +115,42 @@ public class BookService {
         bookRepository.save(book.get());
 
         checkoutRepository.deleteById(checkout.getId());
+
+        History history = new History(userEmail,
+                checkout.getCheckoutDate(),
+                LocalDate.now().toString(),
+                book.get().getTitle(),
+                book.get().getAuthor(),
+                book.get().getDescription(),
+                book.get().getImg());
+
+        historyRepository.save(history);
+
+
+
     }
+
+    public void renewLoan(String userEmail, Long bookId) throws Exception{
+
+        Checkout checkout = checkoutRepository.findByUserEmailAndBookId(userEmail, bookId);
+
+        if (checkout == null){
+            throw new Exception("Book not checked out");
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        Date d1 = sdf.parse(checkout.getReturnDate());
+        Date d2 = sdf.parse(LocalDate.now().toString());
+
+        if (d1.compareTo(d2) > 0 || d1.compareTo(d2) == 0){
+            checkout.setReturnDate(LocalDate.now().plusDays(7).toString());
+            checkoutRepository.save(checkout);
+        } else {
+            throw new Exception("Book cannot be renewed");
+        }
+    }
+
 
 
 }
