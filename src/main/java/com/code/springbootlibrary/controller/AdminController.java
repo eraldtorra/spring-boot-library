@@ -6,7 +6,7 @@ import com.code.springbootlibrary.utils.ExtractJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://localhost:3000")
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -29,5 +29,40 @@ public class AdminController {
         }
 
         adminService.postBook(addBookRequest);
+    }
+
+    @PutMapping("/secure/increase/book/quantity")
+    public void increaseBookQuantity(@RequestHeader(value = "Authorization") String token,
+                                     @RequestParam Long bookId) throws Exception {
+
+        String admin = ExtractJWT.payloadJWTExtraction(token, "\"userType\"");
+        if (!admin.equals("admin")){
+            throw new RuntimeException("Unauthorized");
+        }
+
+        adminService.increaseBookQuantity(bookId);
+    }
+
+    @PutMapping("/secure/decrease/book/quantity")
+    public void decreaseBookQuantity(@RequestHeader(value = "Authorization") String token,
+                                     @RequestParam Long bookId) throws Exception {
+
+        String admin = ExtractJWT.payloadJWTExtraction(token, "\"userType\"");
+        if (!admin.equals("admin")){
+            throw new RuntimeException("Unauthorized");
+        }
+
+        adminService.decreaseBookQuantity(bookId);
+    }
+
+    @DeleteMapping("/secure/delete/book")
+    public void deleteBook(@RequestHeader(value = "Authorization") String token,
+                           @RequestParam Long bookId) throws Exception {
+        String admin = ExtractJWT.payloadJWTExtraction(token, "\"userType\"");
+        if (!admin.equals("admin")){
+            throw new RuntimeException("Unauthorized");
+        }
+
+        adminService.deleteBook(bookId);
     }
 }
