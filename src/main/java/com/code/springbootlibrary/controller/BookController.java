@@ -43,7 +43,7 @@ public class BookController {
     }
 
     @GetMapping("/secure/currentloans")
-    public List<ShelfResponse> currentLoans(@RequestHeader(value = "Authorization") String token) throws ParseException {
+    public List<ShelfResponse> currentLoans(@RequestHeader(value = "Authorization") String token) throws Exception {
         String userEmail = ExtractJWT.payloadJWTExtraction(token, "\"sub\"");
         return bookService.currentLoans(userEmail);
     }

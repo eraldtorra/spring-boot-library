@@ -4,6 +4,7 @@ import com.code.springbootlibrary.dao.PaymentRepository;
 import com.code.springbootlibrary.entity.Payment;
 import com.code.springbootlibrary.requestmodels.PaymentInfo;
 import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,48 +13,57 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
 public class PaymentService {
 
-
+    // Dependency injection of the PaymentRepository
     private PaymentRepository paymentRepository;
 
-
+    // Autowired constructor
     @Autowired
-    public PaymentService(PaymentRepository paymentRepository, @Value("${stripe.secret.key}") String stripeSecretKey) {
+    public PaymentService(PaymentRepository paymentRepository, @Value("${stripe.key.secret}") String secretKey) {
         this.paymentRepository = paymentRepository;
-        Stripe.apiKey = stripeSecretKey;
+        Stripe.apiKey = secretKey;
     }
 
+    // Method to create a PaymentIntent
+    public PaymentIntent createPaymentIntent(PaymentInfo paymentInfoRequest) throws StripeException {
+        // Create a list of payment method types
+        List<String> paymentMethodTypes = new ArrayList<>();
+        paymentMethodTypes.add("card");
 
-    public PaymentIntent createPaymentIntent(PaymentInfo paymentInfo) throws Exception {
-        List<String> paymentMethodsTypes = new ArrayList<>();
-        paymentMethodsTypes.add("card");
-
-        Map<String,Object> params = new HashMap<>();
-        params.put("amount", paymentInfo.getAmount());
-        params.put("currency", paymentInfo.getCurrency());
-        params.put("payment_method_types", paymentMethodsTypes);
+        int amountInCents = (int) (paymentInfoRequest.getAmount());
 
 
+        // Create a map of parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("amount", amountInCents);
+        params.put("currency", paymentInfoRequest.getCurrency());
+        params.put("payment_method_types", paymentMethodTypes);
+
+        // Create a PaymentIntent using the Stripe API
         return PaymentIntent.create(params);
     }
 
-    public ResponseEntity<String> stripePayment(String userEmail) throws Exception{
+    // Method to create a response with a status of OK
+    public ResponseEntity<String> stripePayment(String userEmail) throws Exception {
+        // Find the payment information for the user
         Payment payment = paymentRepository.findByUserEmail(userEmail);
 
-        if(payment == null){
-            throw new Exception("Payment not found");
+        // Throw an exception if the payment information is missing
+        if (payment == null) {
+            throw new Exception("Payment information is missing");
         }
+        // Set the amount to 0.00
         payment.setAmount(00.00);
+        // Save the payment information
         paymentRepository.save(payment);
-
+        // Return a response with a status of OK
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
 }
