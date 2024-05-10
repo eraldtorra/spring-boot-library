@@ -100,6 +100,7 @@ public class BookService {
 
         return book.get();
     }
+
     public Boolean checkoutBookByUser(String userEmail, Long bookId) {
         // Find the checkout by the user's email and book ID
         Checkout validateCheckout = checkoutRepository.findByUserEmailAndBookId(userEmail, bookId);
@@ -195,8 +196,14 @@ public class BookService {
 
         //Check if the difference in time is less than 0
         if (differenceInTime < 0) {
-            //Find the payment by the user email
+            //Find the payment by the user email or create a new payment object
             Payment payment = paymentRepository.findByUserEmail(userEmail);
+
+            if (payment == null) {
+                payment = new Payment();
+                payment.setUserEmail(userEmail);
+                payment.setAmount(00.00);
+            }
 
             //Update the amount of the payment
             payment.setAmount(payment.getAmount() + (differenceInTime * -1));

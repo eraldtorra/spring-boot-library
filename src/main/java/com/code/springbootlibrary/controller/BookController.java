@@ -5,7 +5,9 @@ import com.code.springbootlibrary.responsemodels.ShelfResponse;
 import com.code.springbootlibrary.service.BookService;
 import com.code.springbootlibrary.utils.ExtractJWT;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.util.List;
@@ -33,7 +35,14 @@ public class BookController {
     public Book CheckoutBook(@RequestParam Long bookId,
                              @RequestHeader(value = "Authorization") String token) throws Exception{
         String userEmail = ExtractJWT.payloadJWTExtraction(token, "\"sub\"");
-        return bookService.checkoutBook( userEmail, bookId);
+
+        try {
+            return bookService.checkoutBook(userEmail, bookId);
+        } catch (ParseException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date format");
+        }
+
+
     }
 
     @GetMapping("/secure/checkedout/count")
