@@ -31,7 +31,7 @@ public class PdfService {
     public ByteArrayOutputStream writeHistoryToPdf(String userEmail) throws DocumentException {
         Document document = new Document();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        List<History> historyList = historyRepository.findBooksByUserEmail(userEmail);
+        List<History> historyList = historyRepository.findByUserEmail(userEmail);
 
         PdfWriter.getInstance(document, out);
         document.open();
