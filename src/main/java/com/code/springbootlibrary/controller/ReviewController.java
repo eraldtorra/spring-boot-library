@@ -32,6 +32,8 @@ public class ReviewController {
     @GetMapping("/secure/userReviewExists")
     public boolean userReviewExists(@RequestHeader(value = "Authorization") String token,
                                     @RequestParam Long bookId) throws Exception{
+
+
         String userEmail = ExtractJWT.payloadJWTExtraction(token, "\"sub\"");
         if (userEmail == null){
             throw new Exception("User not found");

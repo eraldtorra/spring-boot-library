@@ -4,12 +4,19 @@ import com.code.springbootlibrary.dao.BookRepository;
 import com.code.springbootlibrary.dao.ReviewRepository;
 import com.code.springbootlibrary.entity.Review;
 import com.code.springbootlibrary.requestmodels.ReviewRequest;
+
+import com.okta.sdk.authc.credentials.TokenClientCredentials;
+import com.okta.sdk.client.Clients;
+import org.openapitools.client.ApiClient;
+import org.openapitools.client.api.UserApi;
+import org.openapitools.client.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.logging.Logger;
 
 
 @Service
@@ -54,6 +61,8 @@ public class ReviewService {
         Review review = reviewRepository.findByUserEmailAndBookId(userEmail, bookId);
         return review != null;
     }
+
+
 
 
 }
